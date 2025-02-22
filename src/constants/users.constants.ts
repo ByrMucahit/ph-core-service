@@ -1,4 +1,5 @@
 export const USERS_ENTITY = new Set([
+  'id',
   'name',
   'surname',
   'country',
