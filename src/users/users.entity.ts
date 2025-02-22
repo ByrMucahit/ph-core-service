@@ -1,7 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'users'})
-export class Users {
+@Entity({ name: 'users' })
+export class UsersEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -17,4 +17,9 @@ export class Users {
   @Column()
   username: string;
 
+  @CreateDateColumn()
+  created_at: Date;
+
+  @Column({ nullable: false })
+  updated_at!: Date;
 }
