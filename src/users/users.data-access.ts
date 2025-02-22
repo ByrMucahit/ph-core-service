@@ -23,4 +23,11 @@ export class UsersDataAccess {
       select: projection,
     });
   }
+
+  async findUserById(
+    userId: string,
+    projection: { [key: string]: 1 },
+  ): Promise<UsersEntity | null> {
+    return this.usersRepository.findOne({ select: projection, where: { id: userId } });
+  }
 }
