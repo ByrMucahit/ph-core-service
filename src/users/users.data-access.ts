@@ -17,4 +17,10 @@ export class UsersDataAccess {
     usersEntity.updated_at = new Date();
     return this.usersRepository.save(usersEntity);
   }
+
+  async findUsers(projection: { [key: string]: 1 }) {
+    return this.usersRepository.find({
+      select: projection,
+    });
+  }
 }
