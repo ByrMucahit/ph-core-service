@@ -5,12 +5,14 @@ import { USERS_ENTITY } from '../constants/users.constants';
 import { CreateMoneyTransactionDto } from '../money-transaction/dtos/create-money-transaction.dto';
 import { UserNotFoundExceptions } from './exceptions/user-not-found.exceptions';
 import { MoneyTransactionService } from '../money-transaction/money-transaction.service';
+import { UserProfileService } from '../user-profile/user-profile.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private usersDataAccess: UsersDataAccess,
     private moneyTransactionService: MoneyTransactionService,
+    private userProfileService: UserProfileService,
   ) {}
 
   private decorateProjectionObject(projection?: string) {
@@ -25,7 +27,8 @@ export class UsersService {
   }
 
   async createUser(createUsersDto: CreateUsersDto) {
-    await this.usersDataAccess.createUser(createUsersDto);
+    const user = await this.usersDataAccess.createUser(createUsersDto);
+    await this.userProfileService.createUserProfile(user.id);
   }
 
   async findUsers(projection: string | { [key: string]: 1 }) {
