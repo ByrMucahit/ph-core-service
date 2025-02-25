@@ -5,9 +5,10 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { UsersDataAccess } from './users.data-access';
 import { MoneyTransactionModule } from '../money-transaction/money-transaction.module';
+import { UserProfileModule } from '../user-profile/user-profile.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UsersEntity]), MoneyTransactionModule],
+  imports: [TypeOrmModule.forFeature([UsersEntity]), MoneyTransactionModule, UserProfileModule],
   providers: [UsersService, UsersDataAccess],
   controllers: [UsersController],
   exports: [UsersService],
