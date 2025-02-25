@@ -43,4 +43,11 @@ export class UsersService {
     };
     await this.moneyTransactionService.createMoneyTransaction(createTransactionDto);
   }
+
+  async findUserById(user_id: string, projection: string | { [key: string]: 1 }) {
+    const decoratedProjection: { [key: string]: 1 } =
+      typeof projection === 'string' ? this.decorateProjectionObject(projection) : projection;
+
+    return this.usersDataAccess.findUserById(user_id, decoratedProjection);
+  }
 }
