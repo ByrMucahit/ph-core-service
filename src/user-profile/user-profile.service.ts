@@ -1,27 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { UserProfileDataAccess } from './user-profile.data-access';
-import { UsersService } from '../users/users.service';
-import { UsersEntity } from '../users/users.entity';
-import { UserNotFoundExceptions } from '../users/exceptions/user-not-found.exceptions';
 import { UserProfileEntity } from './user-profile.entity';
 import { UserProfileAlreadyExistException } from './exceptions/user-profile-already-exist.exception';
+import { UpdateUserProfileDto } from './exceptions/update-user-profile.dto';
 
 @Injectable()
 export class UserProfileService {
-  constructor(
-    private userProfileDataAccess: UserProfileDataAccess,
-    private userService: UsersService,
-  ) {}
+  constructor(private userProfileDataAccess: UserProfileDataAccess) {}
 
   async createUserProfile(user_id: string) {
-    const user: UsersEntity | null = await this.userService.findUserById(user_id, { id: 1 });
-    if (!user) throw new UserNotFoundExceptions();
-
     const userProfile: UserProfileEntity | null =
-      await this.userProfileDataAccess.findUserProfileByUserId(user.id, { user_id: 1 });
+      await this.userProfileDataAccess.findUserProfileByUserId(user_id, { user_id: 1 });
 
     if (userProfile) throw new UserProfileAlreadyExistException('User Profile Already Exist');
 
-    await this.userProfileDataAccess.createUserProfile({ user_id: user.id });
+    await this.userProfileDataAccess.createUserProfile({ user_id });
+  }
+
+  async updateUserProfile(user_id: string, updateUserProfileDto: UpdateUserProfileDto) {
+    const userProfile: UserProfileEntity | null =
+      await this.userProfileDataAccess.findUserProfileByUserId(user_id, { user_id: 1 });
+
+    if (!userProfile) throw new UserProfileAlreadyExistException('User Profile Not Found');
+
+    await this.userProfileDataAccess.updateUserProfile(userProfile, updateUserProfileDto);
   }
 }
