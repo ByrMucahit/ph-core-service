@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateTransactionDto {
   @IsString()
@@ -7,12 +7,11 @@ export class CreateTransactionDto {
   @IsNumber()
   amount: number;
 
-  @IsNumber()
-  amount_to_pool: number;
+  @IsDate()
+  @IsOptional()
+  created_at?: Date;
 
   @IsDate()
-  created_at: Date;
-
-  @IsDate()
-  update_at: Date;
+  @IsOptional()
+  update_at?: Date;
 }
