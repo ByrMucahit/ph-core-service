@@ -4,11 +4,13 @@ import { JobProcessorService } from './job-processor.service';
 import { JobService } from './job.service';
 import { JobSchedulerService } from './job-scheduler.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { RedisModules } from '../cache/redis.module';
+import { CacheModule } from '../cache/cache.module';
+import { UsersModule } from '../../users/users.module';
 
 @Module({
   imports: [
-    RedisModules,
+    CacheModule,
+    UsersModule,
     BullModule.forRoot({
       redis: {
         host: 'localhost',
