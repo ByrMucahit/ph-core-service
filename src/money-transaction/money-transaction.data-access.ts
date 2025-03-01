@@ -12,7 +12,7 @@ export class MoneyTransactionDataAccess {
   ) {}
 
   async createMoneyTransaction(createTransaction: CreateTransactionDto) {
-    const moneyTransactionEntity = await this.moneyTransactionRepository.create(createTransaction);
+    const moneyTransactionEntity = this.moneyTransactionRepository.create(createTransaction);
     moneyTransactionEntity.created_at = new Date();
     moneyTransactionEntity.updated_at = new Date();
     await this.moneyTransactionRepository.save(moneyTransactionEntity);
