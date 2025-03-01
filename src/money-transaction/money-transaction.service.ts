@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { MoneyTransactionDataAccess } from './money-transaction.data-access';
-import { CreateTransactionDto } from './dtos/create-transaction.dto';
+import { CreateMoneyTransactionInterface } from './interfaces/create-money-transaction.interface';
 
 @Injectable()
 export class MoneyTransactionService {
   RATE_FOR_POOL = 0.2;
   constructor(private moneyTransactionDataAccess: MoneyTransactionDataAccess) {}
 
-  async createMoneyTransaction(createTransactionDto: CreateTransactionDto) {
+  async createMoneyTransaction(createTransactionDto: CreateMoneyTransactionInterface) {
     const distributeMoney = this.distributeMoneyIntoPoolAndOwner(createTransactionDto.amount);
     createTransactionDto.amount = distributeMoney.amountForOwner;
     createTransactionDto.amount_to_pool = distributeMoney.amountForPool;
