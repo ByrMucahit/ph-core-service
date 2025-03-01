@@ -3,11 +3,19 @@ import { DataSourceModule } from './datasource/typeorm.module';
 import { UsersModule } from './users/users.module';
 import { AppGateway } from './gateway/app-gateway';
 import { MoneyTransactionModule } from './money-transaction/money-transaction.module';
-import { RedisModule } from './redis/redis.module';
+import { RedisModules } from './redis/cache/redis.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
+import { JobModule } from './redis/bullmq/job.module';
 
 @Module({
-  imports: [DataSourceModule, UsersModule, MoneyTransactionModule, RedisModule, UserProfileModule],
+  imports: [
+    DataSourceModule,
+    UsersModule,
+    MoneyTransactionModule,
+    RedisModules,
+    UserProfileModule,
+    JobModule,
+  ],
   controllers: [],
   providers: [AppGateway],
 })
