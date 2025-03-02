@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MoneyTransactionDataAccess } from './money-transaction.data-access';
 import { CreateMoneyTransactionInterface } from './interfaces/create-money-transaction.interface';
+import { MoneyTransactionEntity } from './money-transaction.entity';
 
 @Injectable()
 export class MoneyTransactionService {
@@ -14,6 +15,10 @@ export class MoneyTransactionService {
     createTransactionDto.created_at = new Date();
     createTransactionDto.update_at = new Date();
     await this.moneyTransactionDataAccess.createMoneyTransaction(createTransactionDto);
+  }
+
+  async createMoneyTransactions(moneyTransactions: MoneyTransactionEntity[]) {
+    await this.moneyTransactionDataAccess.createMoneyTransactions(moneyTransactions);
   }
 
   private distributeMoneyIntoPoolAndOwner(amount: number) {
@@ -56,11 +61,15 @@ export class MoneyTransactionService {
 
   async distributeAwardOnRank(userProfiles: any[], amountMoneyForAward: number) {
     const prizeList = this.calculateRationOnRank(amountMoneyForAward);
+    const map: any = new Map<string, number>();
     const userProfileList: any = [];
     for (let index = 0; index < userProfiles.length; index++) {
       const haveMoney: number = userProfiles[index].money;
       const calculatedMoney = haveMoney + prizeList[index + 1];
+      map.set(userProfiles[index].userId, calculatedMoney);
       userProfileList.push({ money: calculatedMoney });
     }
+
+    return map;
   }
 }
