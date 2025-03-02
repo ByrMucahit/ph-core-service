@@ -6,6 +6,7 @@ import { UsersService } from '../../users/users.service';
 import { UserProfileInCacheDto } from '../../user-profile/dtos/user-profile-in-cache.dto';
 import { CacheService } from '../cache/cache.service';
 import { getWeekRange } from '../../helpers/date-range';
+import { MoneyTransactionService } from '../../money-transaction/money-transaction.service';
 
 @Injectable()
 export class JobService {
@@ -15,6 +16,7 @@ export class JobService {
     @InjectQueue('weeklyJobQueue') private weeklyJobQueue: Queue,
     private cacheService: CacheService,
     private userServices: UsersService,
+    private moneyTransactionService: MoneyTransactionService,
   ) {}
 
   makeUserToUserProfile(users: UsersEntity[]) {
@@ -29,24 +31,44 @@ export class JobService {
     return userProfilesInCache;
   }
 
+  async findWeekRange() {
+    const weekRange = await this.cacheService.getWeekRange();
+    if (!weekRange || Object.keys(weekRange).length < 1) {
+      const currentWeekRange = getWeekRange();
+      await this.cacheService.setWeekRange(currentWeekRange.start_date, currentWeekRange.end_date);
+      return currentWeekRange;
+    }
+    return weekRange;
+  }
+
   async scheduleWeeklyJobQueue() {
     this.logger.debug('Scheduling job...');
     // await this.weeklyJobQueue.add({}, { repeat: { cron: '0 0 * * 1' } });
     const userInCache = await this.cacheService.getUserProfiles();
+    const weekRange: any = await this.findWeekRange();
+
     if (userInCache.length < 1) {
-      this.logger.debug(`There is not data in redis`);
+      this.logger.debug(`There is no data in redis`);
       const users: UsersEntity[] = await this.userServices.findUsers({ id: 1 });
+      const userIds = users.map((user) => user.id);
+      const moneyTransaction =
+        await this.moneyTransactionService.findSumMoneyTransactionByDateAndUserIds(
+          new Date(weekRange.start_date),
+          new Date(weekRange.end_date),
+          userIds,
+        );
+      console.log(moneyTransaction);
       const userProfileInMemoryCache = this.makeUserToUserProfile(users);
       await this.cacheService.updateMultipleUsers(userProfileInMemoryCache);
     }
 
-    const weekRange = await this.cacheService.getWeekRange();
-    if (!weekRange) {
-      const currentWeekRange = getWeekRange();
-      await this.cacheService.setWeekRange(currentWeekRange.firstDay, currentWeekRange.lastDay);
-    }
-
-    const jobs = await this.weeklyJobQueue.getJobs(['active']);
+    const jobs = await this.weeklyJobQueue.getJobs([
+      'waiting',
+      'active',
+      'completed',
+      'failed',
+      'delayed',
+    ]);
     const existFlag = jobs.some((job) => job.name === 'weekly-job');
     if (!existFlag) {
       this.logger.debug(`Creating weekly job...`);
