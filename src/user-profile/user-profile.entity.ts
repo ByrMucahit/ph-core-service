@@ -8,7 +8,7 @@ export class UserProfileEntity {
   @Column()
   rank: number;
 
-  @Column('decimal', { precision: 6, scale: 2 })
+  @Column('decimal', { precision: 12, scale: 4 })
   money: number;
 
   @CreateDateColumn()
