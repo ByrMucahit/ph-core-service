@@ -3,7 +3,7 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeor
 @Entity({ name: 'money-transaction' })
 export class MoneyTransactionEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id?: string;
 
   @Column()
   user_id: string;
@@ -12,7 +12,7 @@ export class MoneyTransactionEntity {
   amount: number;
 
   @Column('decimal', { precision: 6, scale: 2, nullable: true })
-  amount_to_pool: number;
+  amount_to_pool?: number;
 
   @CreateDateColumn()
   created_at: Date;
