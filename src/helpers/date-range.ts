@@ -8,5 +8,5 @@ export function getWeekRange() {
   const lastDay = new Date(firstDay);
   lastDay.setDate(firstDay.getDate() + 6);
   lastDay.setHours(23, 59, 59, 999);
-  return { firstDay, lastDay };
+  return { start_date: firstDay, end_date: lastDay };
 }
