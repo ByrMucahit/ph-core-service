@@ -11,7 +11,7 @@ export class MoneyTransactionEntity {
   @Column('decimal', { precision: 6, scale: 2 })
   amount: number;
 
-  @Column('decimal', { precision: 6, scale: 2 })
+  @Column('decimal', { precision: 6, scale: 2, nullable: true })
   amount_to_pool: number;
 
   @CreateDateColumn()
@@ -19,4 +19,7 @@ export class MoneyTransactionEntity {
 
   @Column({ nullable: false })
   updated_at!: Date;
+
+  @Column({ nullable: true })
+  is_award: boolean;
 }
