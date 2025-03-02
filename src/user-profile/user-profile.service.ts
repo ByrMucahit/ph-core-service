@@ -8,6 +8,9 @@ import { UpdateMoneyDto } from './dtos/update-money.dto';
 import { MoneyTransactionService } from '../money-transaction/money-transaction.service';
 import { CreateMoneyTransactionInterface } from '../money-transaction/interfaces/create-money-transaction.interface';
 import { calculateMoney } from '../helpers/calculate-money';
+import { CacheService } from '../redis/cache/cache.service';
+import { UserProfileInCacheDto } from './dtos/user-profile-in-cache.dto';
+import { dataTypeConverterFromDbToResponse } from '../helpers/converter';
 
 @Injectable()
 export class UserProfileService {
@@ -15,6 +18,7 @@ export class UserProfileService {
   constructor(
     private userProfileDataAccess: UserProfileDataAccess,
     private moneyTransactionService: MoneyTransactionService,
+    private cacheService: CacheService,
   ) {}
 
   async createUserProfile(user_id: string) {
@@ -59,8 +63,26 @@ export class UserProfileService {
         amount: updateMoneyDto.money,
       };
       await this.moneyTransactionService.createMoneyTransaction(createTransactionDto);
+      const userProfileInCacheDto: UserProfileInCacheDto = {
+        user_id: userId,
+        money: incMoney,
+      };
+      await this.cacheService.updateUserProfileInRedis(userProfileInCacheDto);
     } catch (err: any) {
       this.logger.error(`Error accrued. User_id: ${userId} === message: ${err.message}`);
     }
+  }
+
+  async findUserProfiles() {
+    const respInCache = await this.cacheService.getUserProfiles();
+    if (!respInCache || respInCache.length < 1) {
+      const dateRange: any = await this.cacheService.getWeekRange();
+      const response = await this.moneyTransactionService.findSumMoneyTransactionByDateAndUserId(
+        new Date(dateRange.start_date),
+        new Date(dateRange.end_date),
+      );
+      return dataTypeConverterFromDbToResponse(response);
+    }
+    return respInCache;
   }
 }
