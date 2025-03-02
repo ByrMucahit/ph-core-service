@@ -17,4 +17,18 @@ export class MoneyTransactionDataAccess {
     moneyTransactionEntity.updated_at = new Date();
     await this.moneyTransactionRepository.save(moneyTransactionEntity);
   }
+
+  async sumMoneyTransactionByDateAndUserId(startDate: Date, endDate: Date) {
+    return this.moneyTransactionRepository.query(
+      `
+      SELECT user_id, sum(amount) as money
+      FROM "money-transaction"
+      WHERE  1 = 1 AND updated_at >= $1
+      AND updated_at <= $2
+      GROUP BY user_id
+      ORDER BY updated_at DESC
+    `,
+      [startDate, endDate],
+    );
+  }
 }
