@@ -31,4 +31,33 @@ export class MoneyTransactionDataAccess {
       [startDate, endDate],
     );
   }
+
+  async sumMoneyTransactionByDateAndUserIds(startDate: Date, endDate: Date, userIds: string[]) {
+    const response = await this.moneyTransactionRepository.query(
+      `
+      SELECT user_id, sum(amount) as money
+      FROM "money-transaction"
+      WHERE  1 = 1 AND updated_at >= $1
+      AND updated_at  <= $2
+      AND user_id IN ($3)
+      GROUP BY user_id
+    `,
+      [startDate, endDate, userIds],
+    );
+    return response;
+  }
+
+  async sumMoneyInPoolForAwardingByDate(startDate: Date, endDate: Date) {
+    const response = await this.moneyTransactionRepository.query(
+      `
+      SELECT sum(amount_to_pool) as sum_award_money
+      FROM "money-transaction"
+      WHERE  1 = 1 AND updated_at >= $1
+      AND updated_at  <= $2
+      and is_award IS NULL
+    `,
+      [startDate, endDate],
+    );
+    return response[0];
+  }
 }
