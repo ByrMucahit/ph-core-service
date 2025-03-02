@@ -6,6 +6,8 @@ import { CreateMoneyTransactionDto } from '../money-transaction/dtos/create-mone
 import { UserNotFoundExceptions } from './exceptions/user-not-found.exceptions';
 import { MoneyTransactionService } from '../money-transaction/money-transaction.service';
 import { UserProfileService } from '../user-profile/user-profile.service';
+import { CacheService } from '../redis/cache/cache.service';
+import { UserProfileInCacheDto } from '../user-profile/dtos/user-profile-in-cache.dto';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +15,7 @@ export class UsersService {
     private usersDataAccess: UsersDataAccess,
     private moneyTransactionService: MoneyTransactionService,
     private userProfileService: UserProfileService,
+    private cacheService: CacheService,
   ) {}
 
   private decorateProjectionObject(projection?: string) {
@@ -29,6 +32,11 @@ export class UsersService {
   async createUser(createUsersDto: CreateUsersDto) {
     const user = await this.usersDataAccess.createUser(createUsersDto);
     await this.userProfileService.createUserProfile(user.id);
+    const userProfiles: UserProfileInCacheDto = {
+      user_id: user.id,
+      money: 0,
+    };
+    await this.cacheService.addOrUpdateUser(userProfiles);
   }
 
   async findUsers(projection: string | { [key: string]: 1 }) {
