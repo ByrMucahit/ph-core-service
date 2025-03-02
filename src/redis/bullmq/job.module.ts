@@ -6,6 +6,8 @@ import { JobSchedulerService } from './job-scheduler.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CacheModule } from '../cache/cache.module';
 import { UsersModule } from '../../users/users.module';
+import { MoneyTransactionModule } from '../../money-transaction/money-transaction.module';
+import { UserProfileModule } from '../../user-profile/user-profile.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { UsersModule } from '../../users/users.module';
       name: 'weeklyJobQueue',
     }),
     ScheduleModule.forRoot(),
+    MoneyTransactionModule,
+    UserProfileModule,
   ],
   providers: [JobProcessorService, JobService, JobSchedulerService],
 })
