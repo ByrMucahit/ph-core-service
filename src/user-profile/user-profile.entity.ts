@@ -5,9 +5,6 @@ export class UserProfileEntity {
   @PrimaryColumn()
   user_id: string;
 
-  @Column()
-  rank: number;
-
   @Column('decimal', { precision: 12, scale: 4 })
   money: number;
 
