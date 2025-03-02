@@ -20,6 +20,7 @@ import getEnv from '../helpers/get-env';
             database: getEnv('DB_NAME'),
             synchronize: true,
             entities: [__dirname + '/dist/../../**/**.entity{.ts,.js}'],
+            logging: true,
           });
           await dataSource.initialize();
           console.log('Database connected successfully');
