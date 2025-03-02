@@ -18,6 +18,10 @@ export class MoneyTransactionDataAccess {
     await this.moneyTransactionRepository.save(moneyTransactionEntity);
   }
 
+  async createMoneyTransactions(moneyTransactionEntities: MoneyTransactionEntity[]) {
+    await this.moneyTransactionRepository.save(moneyTransactionEntities);
+  }
+
   async sumMoneyTransactionByDateAndUserId(startDate: Date, endDate: Date) {
     return this.moneyTransactionRepository.query(
       `
