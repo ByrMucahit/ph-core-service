@@ -39,6 +39,10 @@ export class UserProfileService {
     await this.userProfileDataAccess.updateUserProfile(userProfile, updateUserProfileDto);
   }
 
+  async updateUserProfiles(updateUserProfiles: UserProfileEntity[]) {
+    await this.userProfileDataAccess.updateUserProfiles(updateUserProfiles);
+  }
+
   async updateUserProfileToIncMoney(userId: string, updateMoneyDto: UpdateMoneyDto) {
     this.logger.debug(`Increasing Money For user: ${userId}, money: ${updateMoneyDto.money}`);
     try {
@@ -71,6 +75,10 @@ export class UserProfileService {
     } catch (err: any) {
       this.logger.error(`Error accrued. User_id: ${userId} === message: ${err.message}`);
     }
+  }
+
+  async findUserProfilesInDb() {
+    return this.userProfileDataAccess.findUserProfile();
   }
 
   async findUserProfiles() {
