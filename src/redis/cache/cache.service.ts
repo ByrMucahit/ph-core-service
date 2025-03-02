@@ -85,4 +85,35 @@ export class CacheService {
     }
     await pipeline.exec();
   }
+
+  async findTop100UserProfilesOrderByMoney() {
+    const key = 'ordered_user_profile_on_money';
+    const start = 0;
+    const stop = 99;
+
+    const result = await this.client.zrevrange(key, start, stop, 'WITHSCORES');
+    const topUsers: any = [];
+    for (let i = 0; i < result.length; i += 2) {
+      const userId = result[i];
+      const money = parseFloat(result[i + 1]);
+      topUsers.push({ userId, money });
+    }
+
+    return topUsers;
+  }
+
+  async resetAllUserProfiles() {
+    const key = 'ordered_user_profile_on_money';
+    const batchSize = 10000;
+    let cursor = 0;
+
+    do {
+      const [newCursor, members] = await this.client.zscan(key, cursor, 'COUNT', batchSize);
+      cursor = parseInt(newCursor, 10);
+      if (members.length > 0) {
+        const args = members.flatMap((member) => [0, member]);
+        await this.client.zadd(key, ...args);
+      }
+    } while (cursor !== 0);
+  }
 }
