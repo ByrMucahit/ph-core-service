@@ -20,4 +20,8 @@ export class MoneyTransactionService {
     const amountForPool = amount * this.RATE_FOR_POOL;
     return { amountForPool, amountForOwner: amount - amountForPool };
   }
+
+  async findSumMoneyTransactionByDateAndUserId(startDate: Date, endDate: Date) {
+    return this.moneyTransactionDataAccess.sumMoneyTransactionByDateAndUserId(startDate, endDate);
+  }
 }
