@@ -102,6 +102,11 @@ export class CacheService {
     return topUsers;
   }
 
+  async resetCaches() {
+    const date: any = await this.getWeekRange();
+    await this.setWeekRange(date.start_date, date.end_date);
+  }
+
   async resetAllUserProfiles() {
     const key = 'ordered_user_profile_on_money';
     const batchSize = 10000;
