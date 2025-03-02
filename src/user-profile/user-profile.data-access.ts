@@ -16,9 +16,16 @@ export class UserProfileDataAccess {
     return this.userProfileRepository.findOne({ select: projection, where: { user_id } });
   }
 
+  async findUserProfile() {
+    return this.userProfileRepository
+      .createQueryBuilder()
+      .select()
+      .orderBy('money', 'DESC')
+      .getMany();
+  }
+
   async createUserProfile(creatUserProfileDto: CreateUserProfileDto) {
     const userProfileEntity = this.userProfileRepository.create(creatUserProfileDto);
-    userProfileEntity.rank = 0;
     userProfileEntity.money = 0;
     userProfileEntity.created_at = new Date();
     userProfileEntity.updated_at = new Date();
@@ -29,12 +36,16 @@ export class UserProfileDataAccess {
     userProfileEntity: UserProfileEntity,
     updateUserProfile: UpdateUserProfileDto,
   ) {
-    const { rank, money } = updateUserProfile;
+    const { money } = updateUserProfile;
     await this.userProfileRepository
       .createQueryBuilder()
       .update(userProfileEntity)
-      .set({ rank, money, updated_at: new Date() })
+      .set({ money, updated_at: new Date() })
       .where('user_id = :user_id', { user_id: userProfileEntity.user_id })
       .execute();
+  }
+
+  async updateUserProfiles(userProfiles: UserProfileEntity[]) {
+    await this.userProfileRepository.save(userProfiles);
   }
 }
