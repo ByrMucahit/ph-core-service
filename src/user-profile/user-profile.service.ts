@@ -85,4 +85,8 @@ export class UserProfileService {
     }
     return respInCache;
   }
+
+  async findTop100UserProfiles() {
+    return this.cacheService.findTop100UserProfilesOrderByMoney();
+  }
 }
