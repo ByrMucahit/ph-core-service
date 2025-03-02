@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Logger, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, Put } from '@nestjs/common';
 import { UserProfileService } from './user-profile.service';
 import { UUIDParam } from '../decorators/http.decorators';
 import { UpdateUserProfileDto } from './exceptions/update-user-profile.dto';
@@ -34,5 +34,11 @@ export class UserProfileController {
       `Update User Profile to Increase Money === user_id: ${userId}, money: ${updateUserProfileForMoney.money}`,
     );
     await this.userProfileService.updateUserProfileToIncMoney(userId, updateUserProfileForMoney);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async findUserProfiles() {
+    return this.userProfileService.findUserProfiles();
   }
 }
