@@ -1,4 +1,5 @@
 import {
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -7,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { GlobalRedisService } from '../redis/globa-redis.service';
 
 @WebSocketGateway(3002, {
   cors: {
@@ -15,9 +17,15 @@ import { Logger } from '@nestjs/common';
 })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(AppGateway.name);
-
+  constructor(private readonly redisService: GlobalRedisService) {}
   @WebSocketServer()
   server: Server;
+
+  @SubscribeMessage('messages')
+  async handleCacheMessage(@MessageBody() data: string) {
+    this.logger.debug(`Message is taken...`);
+    await this.redisService.getClient().publish('messages', data);
+  }
 
   handleConnection(client: Socket): any {
     this.server.emit('user-joined', {
