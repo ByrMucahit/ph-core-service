@@ -36,17 +36,16 @@ export class MoneyTransactionDataAccess {
     );
   }
 
-  async sumMoneyTransactionByDateAndUserIds(startDate: Date, endDate: Date, userIds: string[]) {
+  async sumMoneyTransactionByDateAndUserIds(startDate: Date, endDate: Date) {
     const response = await this.moneyTransactionRepository.query(
       `
       SELECT user_id, sum(amount) as money
       FROM "money-transaction"
       WHERE  1 = 1 AND updated_at >= $1
       AND updated_at  <= $2
-      AND user_id IN ($3)
       GROUP BY user_id
     `,
-      [startDate, endDate, userIds],
+      [startDate, endDate],
     );
     return response;
   }
