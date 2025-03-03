@@ -7,6 +7,7 @@ import { UserProfileModule } from './user-profile/user-profile.module';
 import { JobModule } from './redis/bullmq/job.module';
 import { GlobalRedisModule } from './redis/global-redis.module';
 import { CacheModule } from './redis/cache/cache.module';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CacheModule } from './redis/cache/cache.module';
     CacheModule,
     UserProfileModule,
     JobModule,
+    SeederModule,
   ],
   controllers: [],
   providers: [AppGateway],
