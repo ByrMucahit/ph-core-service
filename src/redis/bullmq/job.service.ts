@@ -19,12 +19,12 @@ export class JobService {
     private moneyTransactionService: MoneyTransactionService,
   ) {}
 
-  makeUserToUserProfile(users: UsersEntity[]) {
+  makeUserToUserProfile(users: UsersEntity[], mt: Map<string, number>) {
     const userProfilesInCache: UserProfileInCacheDto[] | null = [];
     for (const user of users) {
       userProfilesInCache?.push({
         user_id: user.id,
-        money: 0,
+        money: Number(mt.get(user.id)) || 0,
       });
     }
 
@@ -50,15 +50,12 @@ export class JobService {
     if (userInCache.length < 1) {
       this.logger.debug(`There is no data in redis`);
       const users: UsersEntity[] = await this.userServices.findUsers({ id: 1 });
-      const userIds = users.map((user) => user.id);
-      const moneyTransaction =
-        await this.moneyTransactionService.findSumMoneyTransactionByDateAndUserIds(
+      const mapMoneyTransaction =
+        await this.moneyTransactionService.findSumMoneyTransactionByDateAndMap(
           new Date(weekRange.start_date),
           new Date(weekRange.end_date),
-          userIds,
         );
-      console.log(moneyTransaction);
-      const userProfileInMemoryCache = this.makeUserToUserProfile(users);
+      const userProfileInMemoryCache = this.makeUserToUserProfile(users, mapMoneyTransaction);
       await this.cacheService.updateMultipleUsers(userProfileInMemoryCache);
     }
 
