@@ -121,4 +121,45 @@ export class CacheService {
       }
     } while (cursor !== 0);
   }
+
+  async getUsersWithCustomRule(userId: string) {
+    const key = 'ordered_user_profile_on_money';
+
+    const userRank = await this.client.zrank(key, userId);
+
+    if (!userRank) {
+      throw new Error('User not found');
+    }
+
+    let usersToReturn: { user_id: string; money: number }[] = [];
+
+    if (userRank < 100) {
+      const first100UsersWithScores = await this.client.zrevrange(key, 0, 99, 'WITHSCORES');
+      usersToReturn = this.formatUsersWithScores(first100UsersWithScores);
+    } else {
+      const first100UsersWithScores = await this.client.zrevrange(key, 0, 99, 'WITHSCORES');
+      const surroundingUsersWithScore = await this.client.zrevrange(
+        key,
+        userRank - 3,
+        userRank + 2,
+        'WITHSCORES',
+      );
+      usersToReturn = [
+        ...this.formatUsersWithScores(first100UsersWithScores),
+        ...this.formatUsersWithScores(surroundingUsersWithScore),
+      ];
+    }
+    return usersToReturn;
+  }
+  private formatUsersWithScores(usersWithScores: string[]): { user_id: string; money: number }[] {
+    const users: { user_id: string; money: number }[] = [];
+
+    for (let i = 0; i < usersWithScores.length; i += 2) {
+      const user_id = usersWithScores[i];
+      const money = parseFloat(usersWithScores[i + 1]); // Skor (money) değerini sayıya çevir
+      users.push({ user_id, money });
+    }
+
+    return users;
+  }
 }
