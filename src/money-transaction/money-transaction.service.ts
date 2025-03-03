@@ -30,12 +30,20 @@ export class MoneyTransactionService {
     return this.moneyTransactionDataAccess.sumMoneyTransactionByDateAndUserId(startDate, endDate);
   }
 
-  async findSumMoneyTransactionByDateAndUserIds(startDate: Date, endDate: Date, userIds: string[]) {
-    return this.moneyTransactionDataAccess.sumMoneyTransactionByDateAndUserIds(
+  async findSumMoneyTransactionByDateAndUserIds(startDate: Date, endDate: Date) {
+    return this.moneyTransactionDataAccess.sumMoneyTransactionByDateAndUserIds(startDate, endDate);
+  }
+
+  async findSumMoneyTransactionByDateAndMap(startDate: Date, endDate: Date) {
+    const response = await this.moneyTransactionDataAccess.sumMoneyTransactionByDateAndUserIds(
       startDate,
       endDate,
-      userIds,
     );
+    const resultMap: Map<string, number> = new Map<string, number>();
+    for (const r of response) {
+      resultMap.set(r.user_id, r.money);
+    }
+    return resultMap;
   }
 
   async collectMoneyForAwardingByDate(startDate: Date, endDate: Date) {
