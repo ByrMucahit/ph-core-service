@@ -41,4 +41,10 @@ export class UserProfileController {
   async findUserProfiles() {
     return this.userProfileService.findUserProfiles();
   }
+
+  @Get('/:user_id')
+  @HttpCode(HttpStatus.OK)
+  async findUserProfilesWithAuthenticatedUserId(@UUIDParam('user_id') userId: string) {
+    return this.userProfileService.findUserProfilesWithAuthenticatedUser(userId);
+  }
 }
