@@ -47,4 +47,10 @@ export class UserProfileController {
   async findUserProfilesWithAuthenticatedUserId(@UUIDParam('user_id') userId: string) {
     return this.userProfileService.findUserProfilesWithAuthenticatedUser(userId);
   }
+
+  @Get('/group/country')
+  @HttpCode(HttpStatus.OK)
+  async findUserProfilesGroupedByCountry() {
+    return this.userProfileService.findUserProfilesGroupedByCountry();
+  }
 }
