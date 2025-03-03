@@ -81,7 +81,15 @@ export class CacheService {
 
     for (const user of userProfiles) {
       pipeline.zadd('ordered_user_profile_on_money', user.money, user.user_id);
-      pipeline.hset(`user:${user.user_id}`, 'userId', user.user_id, 'money', user.money);
+      pipeline.hset(
+        `user:${user.user_id}`,
+        'user_id',
+        user.user_id,
+        'money',
+        user.money,
+        'country',
+        user.country || '',
+      );
     }
     await pipeline.exec();
   }
@@ -131,11 +139,11 @@ export class CacheService {
       throw new Error('User not found');
     }
 
-    let usersToReturn: { user_id: string; money: number }[] = [];
+    let usersToReturn: { user_id: string; money: number; country?: string }[] = [];
 
     if (userRank < 100) {
       const first100UsersWithScores = await this.client.zrevrange(key, 0, 99, 'WITHSCORES');
-      usersToReturn = this.formatUsersWithScores(first100UsersWithScores);
+      usersToReturn = await this.formatUsersWithScores(first100UsersWithScores);
     } else {
       const first100UsersWithScores = await this.client.zrevrange(key, 0, 99, 'WITHSCORES');
       const surroundingUsersWithScore = await this.client.zrevrange(
@@ -144,20 +152,68 @@ export class CacheService {
         userRank + 2,
         'WITHSCORES',
       );
-      usersToReturn = [
-        ...this.formatUsersWithScores(first100UsersWithScores),
-        ...this.formatUsersWithScores(surroundingUsersWithScore),
-      ];
+      const first100 = await this.formatUsersWithScores(first100UsersWithScores);
+      const surround = await this.formatUsersWithScores(surroundingUsersWithScore);
+      usersToReturn = [...first100, ...surround];
     }
     return usersToReturn;
   }
-  private formatUsersWithScores(usersWithScores: string[]): { user_id: string; money: number }[] {
-    const users: { user_id: string; money: number }[] = [];
+  async formatUsersWithScores(
+    usersWithScores: string[],
+  ): Promise<{ user_id: string; money: number; country?: string }[]> {
+    const users: { user_id: string; money: number; country?: string }[] = [];
 
     for (let i = 0; i < usersWithScores.length; i += 2) {
       const user_id = usersWithScores[i];
       const money = parseFloat(usersWithScores[i + 1]); // Skor (money) değerini sayıya çevir
-      users.push({ user_id, money });
+
+      // Kullanıcının country bilgisini Hash'ten al
+      const userCountry: any = await this.client.hgetall(`user:${user_id}`);
+      users.push({ user_id, money, country: userCountry.country! });
+    }
+    return users;
+  }
+
+  async getUsersGroupedByCountry(): Promise<{
+    [country: string]: { user_id: string; money: number }[];
+  }> {
+    const result: { [country: string]: { user_id: string; money: number }[] } = {};
+
+    // Tüm kullanıcıların user_id'lerini al
+    const userKeys = await this.client.smembers('users:list'); // veya lrange, smembers, vs.
+
+    // Kullanıcı detaylarını Hash'ten al
+    const userDetails = await this.getUserDetails(userKeys);
+
+    // Kullanıcıları country bilgisine göre grupla
+    for (const user of userDetails) {
+      if (!result[user.country]) {
+        result[user.country] = [];
+      }
+      result[user.country].push({ user_id: user.user_id, money: user.money });
+    }
+
+    // Her bir ülke için kullanıcıları money değerine göre sırala
+    for (const country of Object.keys(result)) {
+      result[country].sort((a, b) => b.money - a.money); // Büyükten küçüğe sırala
+    }
+
+    return result;
+  }
+
+  private async getUserDetails(
+    userKeys: string[],
+  ): Promise<{ user_id: string; money: number; country: string }[]> {
+    const users: { user_id: string; money: number; country: string }[] = [];
+
+    for (const userKey of userKeys) {
+      const userDetails = await this.client.hgetall(userKey);
+
+      users.push({
+        user_id: userKey.replace('user:', ''), // user:<user_id> formatından user_id'yi çıkar
+        money: parseFloat(userDetails.money), // money değerini sayıya çevir
+        country: userDetails.country,
+      });
     }
 
     return users;
