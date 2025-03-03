@@ -106,4 +106,8 @@ export class UserProfileService {
   async findUserProfilesWithAuthenticatedUser(userId: string) {
     return this.cacheService.getUsersWithCustomRule(userId);
   }
+
+  async findUserProfilesGroupedByCountry() {
+    return this.cacheService.getUsersGroupedByCountry();
+  }
 }
