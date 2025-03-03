@@ -35,6 +35,7 @@ export class UsersService {
     const userProfiles: UserProfileInCacheDto = {
       user_id: user.id,
       money: 0,
+      country: user.country,
     };
     await this.cacheService.addOrUpdateUser(userProfiles);
   }
