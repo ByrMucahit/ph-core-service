@@ -69,9 +69,10 @@ export class UserProfileService {
         amount: updateMoneyDto.money,
       };
       await this.moneyTransactionService.createMoneyTransaction(createTransactionDto);
+      const userInCache = await this.cacheService.findUserById(userId);
       const userProfileInCacheDto: UserProfileInCacheDto = {
         user_id: userId,
-        money: incMoney,
+        money: Number(userInCache?.money) + calculatedMoney.amountForOwner,
       };
       await this.cacheService.updateUserProfileInRedis(userProfileInCacheDto);
       const tempUserProfiles = await this.findUserProfiles();
