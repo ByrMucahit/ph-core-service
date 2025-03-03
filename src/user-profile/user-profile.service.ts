@@ -102,4 +102,8 @@ export class UserProfileService {
   async findTop100UserProfiles() {
     return this.cacheService.findTop100UserProfilesOrderByMoney();
   }
+
+  async findUserProfilesWithAuthenticatedUser(userId: string) {
+    return this.cacheService.getUsersWithCustomRule(userId);
+  }
 }
