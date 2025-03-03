@@ -11,6 +11,7 @@ import { calculateMoney } from '../helpers/calculate-money';
 import { CacheService } from '../redis/cache/cache.service';
 import { UserProfileInCacheDto } from './dtos/user-profile-in-cache.dto';
 import { dataTypeConverterFromDbToResponse } from '../helpers/converter';
+import { GlobalRedisService } from '../redis/globa-redis.service';
 
 @Injectable()
 export class UserProfileService {
@@ -19,6 +20,7 @@ export class UserProfileService {
     private userProfileDataAccess: UserProfileDataAccess,
     private moneyTransactionService: MoneyTransactionService,
     private cacheService: CacheService,
+    private redisService: GlobalRedisService,
   ) {}
 
   async createUserProfile(user_id: string) {
@@ -72,6 +74,8 @@ export class UserProfileService {
         money: incMoney,
       };
       await this.cacheService.updateUserProfileInRedis(userProfileInCacheDto);
+      const tempUserProfiles = await this.findUserProfiles();
+      await this.redisService.publish('messages', JSON.stringify(tempUserProfiles));
     } catch (err: any) {
       this.logger.error(`Error accrued. User_id: ${userId} === message: ${err.message}`);
     }
