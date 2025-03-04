@@ -8,6 +8,7 @@ import { MoneyTransactionService } from '../money-transaction/money-transaction.
 import { UserProfileService } from '../user-profile/user-profile.service';
 import { CacheService } from '../redis/cache/cache.service';
 import { UserProfileInCacheDto } from '../user-profile/dtos/user-profile-in-cache.dto';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +30,7 @@ export class UsersService {
     return currentProjection;
   }
 
+  @Transactional()
   async createUser(createUsersDto: CreateUsersDto) {
     const user = await this.usersDataAccess.createUser(createUsersDto);
     await this.userProfileService.createUserProfile(user.id);
