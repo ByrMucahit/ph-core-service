@@ -12,6 +12,7 @@ import { CacheService } from '../redis/cache/cache.service';
 import { UserProfileInCacheDto } from './dtos/user-profile-in-cache.dto';
 import { dataTypeConverterFromDbToResponse } from '../helpers/converter';
 import { GlobalRedisService } from '../redis/globa-redis.service';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class UserProfileService {
@@ -45,6 +46,7 @@ export class UserProfileService {
     await this.userProfileDataAccess.updateUserProfiles(updateUserProfiles);
   }
 
+  @Transactional()
   async updateUserProfileToIncMoney(userId: string, updateMoneyDto: UpdateMoneyDto) {
     this.logger.debug(`Increasing Money For user: ${userId}, money: ${updateMoneyDto.money}`);
     try {
