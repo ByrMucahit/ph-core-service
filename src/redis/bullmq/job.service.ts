@@ -26,6 +26,7 @@ export class JobService {
         user_id: user.id,
         money: Number(mt.get(user.id)) || 0,
         country: user.country,
+        username: user.username,
       });
     }
 
@@ -50,7 +51,11 @@ export class JobService {
 
     if (userInCache.length < 1) {
       this.logger.debug(`There is no data in redis`);
-      const users: UsersEntity[] = await this.userServices.findUsers({ id: 1, country: 1 });
+      const users: UsersEntity[] = await this.userServices.findUsers({
+        id: 1,
+        country: 1,
+        username: 1,
+      });
       const mapMoneyTransaction =
         await this.moneyTransactionService.findSumMoneyTransactionByDateAndMap(
           new Date(weekRange.start_date),
