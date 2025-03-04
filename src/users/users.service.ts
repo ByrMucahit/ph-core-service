@@ -36,6 +36,7 @@ export class UsersService {
       user_id: user.id,
       money: 0,
       country: user.country,
+      username: user.username,
     };
     await this.cacheService.addOrUpdateUser(userProfiles);
   }
