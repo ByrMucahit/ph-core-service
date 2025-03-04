@@ -16,7 +16,14 @@ export class CacheService {
     for (let i = 0; i < users.length; i += 2) {
       const userId = users[i];
       const money = parseFloat(users[i + 1]);
-      result.push({ userId, money });
+      const user: any = await this.client.hgetall(`user:${userId}`);
+      result.push({
+        ranking: i / 2,
+        userId,
+        money,
+        username: user.user_name,
+        country: user.country,
+      });
     }
     return result;
   }
@@ -85,6 +92,8 @@ export class CacheService {
         `user:${user.user_id}`,
         'user_id',
         user.user_id,
+        'user_name',
+        user.username || '',
         'money',
         user.money,
         'country',
@@ -165,9 +174,7 @@ export class CacheService {
 
     for (let i = 0; i < usersWithScores.length; i += 2) {
       const user_id = usersWithScores[i];
-      const money = parseFloat(usersWithScores[i + 1]); // Skor (money) değerini sayıya çevir
-
-      // Kullanıcının country bilgisini Hash'ten al
+      const money = parseFloat(usersWithScores[i + 1]);
       const userCountry: any = await this.client.hgetall(`user:${user_id}`);
       users.push({ user_id, money, country: userCountry.country! });
     }
